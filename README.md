@@ -79,6 +79,17 @@ Unstructured and large-scale housing data makes it difficult to evaluate complai
 - Real-time alerts to tenants and inspectors
 - REST API deployment with AWS SageMaker
 
+## 👥 Project Team – Group 4 (PG-DBDA, CDAC Mumbai)
+
+- 👨‍💼 [@Chetan-3179](https://github.com/Chetan-3179) – Team Leader  
+- 👨‍💻 [@Prateek26071998](https://github.com/Prateek26071998) – Team Member  
+- 👨‍💻 [@ABHISHEK9000](https://github.com/ABHISHEK9000) – Team Member  
+- 👨‍💻 [@mandar353](https://github.com/mandar353) – Team Member  
+- 👨‍💻 [@rushikeshpabalkar90](https://github.com/rushikeshpabalkar90) – Team Member  
+- 👩‍💻 [@Sarkaranannya9932](https://github.com/Sarkaranannya9932) – Team Member  
+- 👩‍💻 [@shakya-official](https://github.com/shakya-official) – Team Member  
+- 👩‍💻 [@VedikaMule](https://github.com/VedikaMule) – Team Member
+
 
 
 
