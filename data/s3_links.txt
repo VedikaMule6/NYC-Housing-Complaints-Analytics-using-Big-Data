@@ -1,0 +1,2 @@
+Master Data File:
+s3://nyc-housing-complaints-g4/final/master_complaints_table/part-00000-0f889d5f-ac8a-43f6-a9bf-fc4787c6de99-c000.snappy.parquet
