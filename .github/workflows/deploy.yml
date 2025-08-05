@@ -1,0 +1,46 @@
+name: CI and Deploy to AWS
+
+on:
+  pull_request:
+    branches: [dev]
+  push:
+    branches: [main]
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Syntax Check
+      run: |
+        python -m compileall scripts/
+
+    - name: Run Tests
+      run: |
+        pip install pytest
+        pytest tests/
+
+    - name: Upload etl.py to S3
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+        S3_BUCKET: ${{ secrets.S3_BUCKET }}
+      run: |
+        aws s3 cp scripts/etl.py s3://$S3_BUCKET/scripts/etl.py
+
+    - name: Run fetch_and_upload.py
+      run: |
+        python scripts/fetch_and_upload.py
