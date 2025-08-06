@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ dev ]
   schedule:
-    - cron: "30 11 * * *"  # This is 2:00 AM IST = 20:30 UTC daily
+    - cron: "45 11 * * *"  # This is 2:00 AM IST = 20:30 UTC daily
 
 jobs:
   # Test on Pull Request
