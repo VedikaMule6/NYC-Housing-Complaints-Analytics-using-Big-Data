@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ dev ]
   schedule:
-    - cron: "30 20 * * *"  # This is 2:00 AM IST = 20:30 UTC daily
+    - cron: "30 11 * * *"  # This is 2:00 AM IST = 20:30 UTC daily
 
 jobs:
   # Test on Pull Request
@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -U pip
-          pip install pandas boto3 requests pytest
+          pip install -r requirements.txt
 
       - name: Run unit tests
         run: pytest tests/
@@ -44,18 +44,19 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -U pip
-          pip install pandas boto3 requests
+          pip install -r requirements.txt
 
-      - name: Run fetch_and_upload.py
-        run: python scripts/fetch_and_upload.py
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          
+
+#      - name: Run fetch_and_upload.py
+#        run: python scripts/fetch_and_upload.py
+#        env:
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+
       - name: Upload etl.py to S3
         run: |
-          aws s3 cp scripts/etl.py s3://nyc-311-data-bucket/scripts/etl.py
+          aws s3 cp scripts/etl.py s3://cdac-final-project-data/ETL_script_for_glue/etl.py
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
