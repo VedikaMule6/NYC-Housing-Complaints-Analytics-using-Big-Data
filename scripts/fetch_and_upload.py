@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import boto3
-from io import StringIO
+from io import BytesIO
 from datetime import datetime, timedelta
 
 
@@ -28,10 +28,10 @@ def fetch_filtered_data(base_url, date_field, data_date, limit=1500, agency=None
 
 
 def upload_to_s3(df, bucket, key):
-    csv_buffer = StringIO()
-    df.to_csv(csv_buffer, index=False)
+    buffer = BytesIO()
+    df.to_parquet(buffer, index=False, engine='pyarrow')
     s3 = boto3.client("s3")
-    s3.put_object(Bucket=bucket, Key=key, Body=csv_buffer.getvalue())
+    s3.put_object(Bucket=bucket, Key=key, Body=buffer.getvalue())
     print(f"Uploaded to s3://{bucket}/{key}")
 
 
@@ -40,7 +40,7 @@ def main():
     nyc_311_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
     hpd_date = (datetime.today() - timedelta(days=2)).strftime('%Y-%m-%d')
 
-    bucket = "nyc-311-data-bucket"  # <-- change if needed
+    bucket = "cdac-final-project-data"
 
     # Fetch NYC 311 Complaints (T-1)
     df_311 = fetch_filtered_data(
@@ -49,7 +49,7 @@ def main():
         data_date=nyc_311_date,
         agency="HPD"
     )
-    upload_to_s3(df_311, bucket, f"raw_data/nyc_311/{nyc_311_date}.csv")
+    upload_to_s3(df_311, bucket, f"Bronze-level/311_nyc_dataset/{nyc_311_date}.parquet")
 
     # Fetch HPD Complaints (T-2)
     df_hpd = fetch_filtered_data(
@@ -58,7 +58,7 @@ def main():
         data_date=hpd_date
     )
 
-    upload_to_s3(df_hpd, bucket, f"raw_data/hpd/{hpd_date}.csv")
+    upload_to_s3(df_hpd, bucket, f"raw_data/hpd/{hpd_date}.parquet")
 
 
 if __name__ == "__main__":
