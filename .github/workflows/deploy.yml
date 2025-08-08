@@ -46,16 +46,14 @@ jobs:
           terraform_version: 1.5.5
 
       - name: Terraform Init
-        run: terraform init \
-          -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-          -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-          -var="aws_session_token=${{ secrets.AWS_SESSION_TOKEN }}"
+        run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan \
-          -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-          -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-          -var="aws_session_token=${{ secrets.AWS_SESSION_TOKEN }}"
+        run: |
+          terraform plan -out=tfplan \
+            -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            -var="aws_session_token=${{ secrets.AWS_SESSION_TOKEN }}"
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
