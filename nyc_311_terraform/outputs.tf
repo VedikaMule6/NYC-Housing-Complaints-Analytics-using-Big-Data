@@ -7,7 +7,7 @@ output "s3_project_bucket" {
 # }
 
 output "glue_database_name" {
-  value = aws_glue_catalog_database.nyc_311_db.name
+  value = aws_glue_catalog_database.nyc_db.name
 }
 
 output "glue_job_name" {
