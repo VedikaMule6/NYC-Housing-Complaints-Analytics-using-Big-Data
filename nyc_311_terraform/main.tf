@@ -1,9 +1,22 @@
+terraform {
+  backend "s3" {
+    bucket         = "terraform-state-bucket-nyc"
+    key            = "terraform-state/"
+    region         = "us-east-1"
+#     dynamodb_table = "your-terraform-lock-table"   # optional but recommended
+    encrypt        = true
+  }
+}
+
+
 # -------------------------------
 # S3 Bucket for Project Data
 # -------------------------------
 resource "aws_s3_bucket" "project_data" {
   bucket = var.bucket_name
 }
+
+
 
 # Folder Structure (creates empty objects to simulate folders)
 locals {
