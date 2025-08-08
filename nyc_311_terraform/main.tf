@@ -23,6 +23,7 @@ resource "aws_s3_object" "folders" {
   for_each = toset(local.folders)
   bucket   = aws_s3_bucket.project_data.bucket
   key      = each.key
+  content = ""
 }
 
 # # # Athena results bucket
@@ -33,8 +34,8 @@ resource "aws_s3_object" "folders" {
 # -------------------------------
 # Glue Database
 # -------------------------------
-resource "aws_glue_catalog_database" "nyc_311_db" {
-  name = "nyc_311_db"
+resource "aws_glue_catalog_database" "nyc_db" {
+  name = "nyc_db"
 }
 
 # -------------------------------
@@ -63,7 +64,7 @@ resource "aws_glue_job" "etl_job" {
 resource "aws_glue_crawler" "etl_output_crawler" {
   name        = "crawler-etl-output"
   role        = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
-  database_name = aws_glue_catalog_database.nyc_311_db.name
+  database_name = aws_glue_catalog_database.nyc_db.name
   description = "This crawler will run after etl job."
   table_prefix = "transformed_"
 
