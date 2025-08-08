@@ -5,8 +5,7 @@ on:
     branches: [ dev ]
   push:
     branches: [ main ]
-#  schedule:
-#    - cron: "45 11 * * *"  # This is 2:00 AM IST = 20:30 UTC daily
+
 
 jobs:
   # Test on Pull Request
@@ -61,9 +60,7 @@ jobs:
         working-directory: ./nyc_311_terraform
         run: terraform apply -auto-approve tfplan
 
-  # Run pipeline at 2am only
   daily-etl:
-#    if: github.event_name == 'schedule' && github.ref == 'refs/heads/main'
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
