@@ -12,6 +12,7 @@ locals {
     "Bronze-level/HPD_dataset/",
     "Bronze-level/Master_dataset/",
     "Bronze-level/PLUTO_dataset/",
+    "Bronze-level/Affordable_Housing_dataset/"
     "Silver-level/transformed_data/",
     "Gold-level/aggregated_data/",
     "ETL_script_for_glue/",
@@ -78,8 +79,8 @@ resource "aws_glue_crawler" "etl_output_crawler" {
 # -------------------------------
 # Athena Workgroup
 # -------------------------------
-resource "aws_athena_workgroup" "primary" {
-  name = "primary"
+resource "aws_athena_workgroup" "nyc_group" {
+  name = "nyc_workgroup"
 
   configuration {
     result_configuration {
