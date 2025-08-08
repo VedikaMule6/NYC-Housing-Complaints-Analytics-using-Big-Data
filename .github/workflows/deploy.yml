@@ -46,9 +46,11 @@ jobs:
           terraform_version: 1.5.5
 
       - name: Terraform Init
+        working-directory: ./nyc_311_terraform
         run: terraform init
 
       - name: Terraform Plan
+        working-directory: ./nyc_311_terraform
         run: |
           terraform plan -out=tfplan \
             -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
@@ -56,6 +58,7 @@ jobs:
             -var="aws_session_token=${{ secrets.AWS_SESSION_TOKEN }}"
 
       - name: Terraform Apply
+        working-directory: ./nyc_311_terraform
         run: terraform apply -auto-approve tfplan
 
   # Run pipeline at 2am only
