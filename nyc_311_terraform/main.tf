@@ -12,7 +12,7 @@ locals {
     "Bronze-level/HPD_dataset/",
     "Bronze-level/Master_dataset/",
     "Bronze-level/PLUTO_dataset/",
-    "Bronze-level/Affordable_Housing_dataset/"
+    "Bronze-level/Affordable_Housing_dataset/",
     "Silver-level/transformed_data/",
     "Gold-level/aggregated_data/",
     "ETL_script_for_glue/",
