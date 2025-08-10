@@ -68,7 +68,7 @@ resource "aws_glue_job" "etl_job" {
   glue_version         = "5.0"
   worker_type          = "G.1X"
   number_of_workers    = 5
-  max_retries          = 1
+  max_retries          = 0
   timeout              = 120
 }
 
