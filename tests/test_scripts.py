@@ -1,5 +1,9 @@
 import os
 import importlib.util
+import pytest
+
+# skip aws glue import test
+pytest.importorskip("awsglue")
 
 def test_fetch_and_upload_exists():
     assert os.path.exists("scripts/fetch_and_upload.py")
