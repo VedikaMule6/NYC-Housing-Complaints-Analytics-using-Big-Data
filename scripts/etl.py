@@ -9,7 +9,6 @@ sc = SparkContext()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 
-
 df_311 = spark.read.option("header","true").parquet("s3://cdac-final-project-data/Bronze-level/311_nyc_dataset/311_nyc_raw_data.parquet")
 
 df_311 = df_311.withColumnRenamed("complaint type", "complaint_type")

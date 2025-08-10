@@ -3,4 +3,3 @@ pandas
 boto3
 pyarrow
 pytest
-pyspark
