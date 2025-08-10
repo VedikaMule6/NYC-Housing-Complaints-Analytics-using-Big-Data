@@ -5,6 +5,7 @@ import importlib.util
 def test_fetch_and_upload_exists():
     assert os.path.exists("scripts/fetch_and_upload.py")
 
+
 def test_etl_exists():
     assert os.path.exists("scripts/etl.py")
 
