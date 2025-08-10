@@ -37,6 +37,8 @@ df_311 = df_311.withColumn("complaint_category",
 
 df_hpd = spark.read.option("header","true").parquet("s3://cdac-final-project-data/Bronze-level/HPD_dataset/HPD_raw_data.parquet")
 
+df_311 = df_311.withColumnRenamed("Unique_Key", "Unique_Key_311")
+
 
 # Step 1: Select only necessary columns from HPD
 df_hpd_trimmed = df_hpd.select(
@@ -47,7 +49,7 @@ df_hpd_trimmed = df_hpd.select(
 # Step 2: Left join on Unique_Key
 df_joined = df_311.join(
     df_hpd_trimmed,
-    df_311["Unique_Key"] == df_hpd_trimmed["hpd_unique_key"],
+    df_311["Unique_Key_311"] == df_hpd_trimmed["hpd_unique_key"],
     how="left"
 )
 
@@ -90,7 +92,7 @@ df_final = df_final.drop("bbl_pluto")
 # Define the useful KPI columns to retain
 columns_to_keep = [
     # 311 complaint info
-    'Unique_Key',
+    'Unique_Key_311',
     'Created_Date', 'Closed_Date', 'created_date_stand', 'closed_date_stand',
     'complaint_type', 'Descriptor', 'complaint_category',
     'Status', 'validation',
