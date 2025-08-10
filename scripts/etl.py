@@ -38,6 +38,7 @@ df_311 = df_311.withColumn("complaint_category",
 df_hpd = spark.read.option("header","true").parquet("s3://cdac-final-project-data/Bronze-level/HPD_dataset/HPD_raw_data.parquet")
 
 df_311 = df_311.withColumnRenamed("Unique_Key", "Unique_Key_311")
+df_311 = df_311.withColumnRenamed("Created_Date", "Created_Date_311")
 
 
 # Step 1: Select only necessary columns from HPD
@@ -93,7 +94,7 @@ df_final = df_final.drop("bbl_pluto")
 columns_to_keep = [
     # 311 complaint info
     'Unique_Key_311',
-    'Created_Date', 'Closed_Date', 'created_date_stand', 'closed_date_stand',
+    'Created_Date_311', 'Closed_Date', 'created_date_stand', 'closed_date_stand',
     'complaint_type', 'Descriptor', 'complaint_category',
     'Status', 'validation',
     'borough', 'Incident_Zip', 'City', 'full_address',
@@ -151,7 +152,7 @@ df_fully_enriched = df_master_enriched.join(
     how="left"
 )
 
-df=df_fully_enriched
+df = df_fully_enriched
 
 
 # Step 1: Convert string to timestamp
