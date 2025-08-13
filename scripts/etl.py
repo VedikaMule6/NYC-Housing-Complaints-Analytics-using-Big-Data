@@ -76,7 +76,7 @@ df_hpd = df_hpd.withColumn("borough",
     .otherwise(col("borough"))
 )
 
-#Step 1: Select only necessary columns from HPD
+# Step 1: Select only necessary columns from HPD
 df_hpd_trimmed = df_hpd.select(
     col("unique_key").alias("hpd_unique_key"),
     col("bbl")
@@ -103,7 +103,7 @@ df_result = df_validated.drop("hpd_unique_key")
 # - 'validation' column
 # - 'bbl' column from HPD
 
-df_pluto=spark.read.option("header","true").csv("s3://pluto311new/Primary_Land_Use_Tax_Lot_Output_PLUTO_20250724.csv")
+df_pluto=spark.read.option("header","true").csv("s3://pluto311new/Primary_Land_Use_Tax_Lot_Output__PLUTO__20250724.csv")
 
 def standardize_col_names(df):
     def clean_name(name):
@@ -219,8 +219,8 @@ df_master_enriched = df_master.join(
 
 df_aff_summary = df_aff.groupBy("Borough").agg(
     count("*").alias("total_projects"),
-    _sum(col("Total Units").cast("int")).alias("total_affordable_units"),
-    avg(col("Total Units").cast("int")).alias("avg_units_per_project")
+    _sum(col("`Total Units`").cast("int")).alias("total_affordable_units"),
+    avg(col("`Total Units`").cast("int")).alias("avg_units_per_project")
 ).orderBy("Borough")
 
 df_aff_summary = df_aff_summary.withColumn("borough", upper(col("borough")))
