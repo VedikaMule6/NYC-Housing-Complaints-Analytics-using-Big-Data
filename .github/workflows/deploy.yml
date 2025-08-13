@@ -1,39 +1,50 @@
 name: validate-and-deploy
 
+# Triggers to run workflow
 on:
+  # pull request on dev branch
   pull_request:
     branches: [ dev ]
+  # push on main branch
   push:
     branches: [ main ]
 
 
 jobs:
-  # Test on Pull Request
+  # Test on Pull Request to dev
   validate:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
+      # clone the repo in runner env
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # install python 3.10 in runner environment
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v4 # Official GitHub Action that installs Python
         with:
           python-version: "3.10"
 
+      # install pip and all needed package like pytest
       - name: Install dependencies
         run: |
           pip install -U pip
           pip install -r requirements.txt
 
+      # Run test defined in tests/test_script.py
       - name: Run unit tests
         run: pytest tests/
 
-  # Terraform Infrastructure Deploy
+
+  # Terraform Infrastructure Deployment Job
   terraform-deploy:
+    # create infrastructure on push to main branch
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+
+    # setting environment variables in environment
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -41,83 +52,111 @@ jobs:
       AWS_REGION: us-east-1
 
     steps:
+      # clone the repo in runner env
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Install Terraform and add it to system path in runner environment
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v2  # Official GitHub Action to install Terraform
         with:
           terraform_version: 1.5.5
 
+      # Running Terraform in working directory
+      # install plugins and set .terraform folder for state
       - name: Terraform Init
         working-directory: ./nyc_311_terraform
         run: terraform init
 
+      # Running Terraform’s dry-run mode
       - name: Terraform Plan
         working-directory: ./nyc_311_terraform
+        # Saves the plan to a binary file (tfplan)
         run: |
-          terraform plan -out=tfplan \
-            -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            -var="aws_session_token=${{ secrets.AWS_SESSION_TOKEN }}"
+          terraform plan -out=tfplan
 
+      # # Apply Terraform changes to AWS
       - name: Terraform Apply
         working-directory: ./nyc_311_terraform
-        run: terraform apply -auto-approve tfplan
+        # apply the changes according to plan
+        run: terraform apply -auto-approve tfplan # (-auto-approve skips the approval part)
 
-  daily-etl:
+  # Upload etl.py file to s3 bucket for glue job
+  upload-etl:
+    # upload etl.py on push to main branch
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-
     needs: terraform-deploy
+
+    # setting environment variables in environment
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_REGION: us-east-1
+
+
     steps:
+      # clone the repo in runner environment
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Install python in runner environment
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v4 # Official GitHub action to install python
         with:
           python-version: "3.10"
 
-      - name: Install dependencies
-        run: |
-          pip install -U pip
-          pip install -r requirements.txt
-
-
-#      - name: Run fetch_and_upload.py
-#        run: python scripts/fetch_and_upload.py
-#        env:
-#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-
+      # Upload ETL script to s3 bucket using aws cli
       - name: Upload etl.py to S3
+        # copy etl.py from runner env and paste it in s3 bucket
         run: |
           aws s3 cp scripts/etl.py s3://cdac-final-project-data/ETL_script_for_glue/etl.py
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
+      # Run Glue Job and wait until status is SUCCEEDED
       - name: Run AWS Glue Job and wait for completion
+        # Using bash for running multi-line script
         shell: bash
         run: |
+          # Set AWS Glue job name
           JOB_NAME="daily-etl-job"
+          
+          # Set AWS Region
           REGION="us-east-1"
           
+          # Start AWS Glue job and store Run ID
           echo "Starting Glue Job..."
-          RUN_ID=$(aws glue start-job-run --job-name $JOB_NAME --region $REGION --query 'JobRunId' --output text)
+          RUN_ID=$(aws glue start-job-run \ # Name of the Glue job to start
+          --job-name $JOB_NAME \            # AWS region
+          --region $REGION \                # Extract only the JobRunId from the JSON response
+          --query 'JobRunId' \              # Output as plain text
+          --output text
+          )
           
           echo "Started Glue Job with Run ID: $RUN_ID"
+          # set initial status to Running
           STATUS="RUNNING"
+          
+          # Check Glue job status every 30 seconds until it finishes(status becomes succeeded)
           while [[ "$STATUS" == "RUNNING" || "$STATUS" == "STARTING" || "$STATUS" == "STOPPING" ]]; do
+          
             echo "Checking job status..."
+          
+            # wait for 30 sec
             sleep 30
-            STATUS=$(aws glue get-job-run --job-name $JOB_NAME --run-id $RUN_ID --region $REGION --query 'JobRun.JobRunState' --output text)
+            
+            
+            STATUS=$(aws glue get-job-run \          # The Glue job you started earlier
+            --job-name $JOB_NAME --run-id $RUN_ID \  # Specific run ID you got from start-job-run
+            --region $REGION \                       # AWS region
+            --query 'JobRun.JobRunState' \           # Extract only the job state (e.g. RUNNING / SUCCEEDED /FAILED)
+            --output text                            # Return plain text
+            )
+          
             echo "Current status: $STATUS"
           done
           
+          # Check final status
           if [[ "$STATUS" == "SUCCEEDED" ]]; then
             echo "Glue job succeeded!"
             exit 0
@@ -126,17 +165,9 @@ jobs:
             exit 1
           fi
 
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-
+      # Run Aws Glue crawler to fetch the schema from transformed data
       - name: Run AWS Glue Crawler
         run: |
           aws glue start-crawler \
             --name crawler-etl-output \
             --region us-east-1
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}

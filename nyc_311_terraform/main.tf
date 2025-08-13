@@ -1,24 +1,27 @@
+# Terraform script for creating AWS Infrastructure
+
+# Setting up bucket to save terraform state for versioning
 terraform {
   backend "s3" {
     bucket         = "terraform-state-bucket-nyc"
     key            = "terraform-state/terraform.tfstate"
     region         = "us-east-1"
-#     dynamodb_table = "your-terraform-lock-table"   # optional but recommended
     encrypt        = true
   }
 }
 
 
-# -------------------------------
-# S3 Bucket for Project Data
-# -------------------------------
+# Get current AWS account info from aws credentials
+data "aws_caller_identity" "current" {}
+
+
+# S3 Bucket for storing Project Data
 resource "aws_s3_bucket" "project_data" {
   bucket = var.bucket_name
 }
 
 
-
-# Folder Structure (creates empty objects to simulate folders)
+# Medallion Architecture Folder Structure
 locals {
   folders = [
     "Bronze-level/311_nyc_dataset/",
@@ -33,6 +36,8 @@ locals {
   ]
 }
 
+
+# creates empty objects to simulate folders
 resource "aws_s3_object" "folders" {
   for_each = toset(local.folders)
   bucket   = aws_s3_bucket.project_data.bucket
@@ -40,21 +45,14 @@ resource "aws_s3_object" "folders" {
   content = ""
 }
 
-# # # Athena results bucket
-# resource "aws_s3_bucket" "athena_results" {
-#   bucket = var.bucket_name
-# }
 
-# -------------------------------
-# Glue Database
-# -------------------------------
+# Glue Database to store tables
 resource "aws_glue_catalog_database" "nyc_db" {
   name = "nyc_db"
 }
 
-# -------------------------------
-# Glue Job
-# -------------------------------
+
+# Glue Job with 3 DPU to run ETL script
 resource "aws_glue_job" "etl_job" {
   name     = "daily-etl-job"
   role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
@@ -67,14 +65,13 @@ resource "aws_glue_job" "etl_job" {
 
   glue_version         = "5.0"
   worker_type          = "G.1X"
-  number_of_workers    = 5
+  number_of_workers    = 3
   max_retries          = 0
   timeout              = 120
 }
 
-# -------------------------------
-# Glue Crawler
-# -------------------------------
+
+# Glue Crawler to crawl transform dataset
 resource "aws_glue_crawler" "etl_output_crawler" {
   name        = "crawler-etl-output"
   role        = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
@@ -89,9 +86,8 @@ resource "aws_glue_crawler" "etl_output_crawler" {
   schedule = null  # On demand
 }
 
-# -------------------------------
-# Athena Workgroup
-# -------------------------------
+
+# Athena Workgroup to query data
 resource "aws_athena_workgroup" "nyc_group" {
   name = "nyc_workgroup"
 
@@ -101,6 +97,3 @@ resource "aws_athena_workgroup" "nyc_group" {
     }
   }
 }
-
-# Get current AWS account info
-data "aws_caller_identity" "current" {}

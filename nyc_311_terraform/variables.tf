@@ -3,6 +3,7 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+# Get secret variable from GitHub
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
 variable "aws_session_token" {}

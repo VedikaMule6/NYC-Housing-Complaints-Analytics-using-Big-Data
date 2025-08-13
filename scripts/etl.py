@@ -4,8 +4,7 @@ from pyspark.sql.functions import to_timestamp, current_date, datediff, year, wh
 from pyspark.sql.window import Window
 
 
-# Create Spark & Glue context
-sc = SparkContext()
+sc = SparkContext.getOrCreate()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 
@@ -53,6 +52,7 @@ df_joined = df_311.join(
     df_311["Unique_Key_311"] == df_hpd_trimmed["hpd_unique_key"],
     how="left"
 )
+
 
 # Step 3: Add 'validation' column
 df_validated = df_joined.withColumn(
