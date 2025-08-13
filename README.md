@@ -90,7 +90,13 @@ Unstructured and large-scale housing data makes it difficult to evaluate complai
 - 👩‍💻 [@shakya-official](https://github.com/shakya-official) – Team Member  
 - 👩‍💻 [@VedikaMule](https://github.com/VedikaMule) – Team Member
 
+## Architecture Diagram
+
+![Architecture diagram](Architecture_Diagram.jpeg)
 
 
+## Dashboards
 
+![dashboard 1](Dashboards/Dashboard_1.png)
 
+![dashboard 2](Dashboards/Dashboard_2.png)
