@@ -1,7 +1,7 @@
 # nyc-housing-analytics
-# NYC Housing Complaints analysis & prediction
+# NYC Housing Complaints analysis
 
-This repository contains the source code, data pipeline scripts, and documentation for our group project: **NYC Housing Complaints analysis & Prediction using Big Data & Machine Learning**.
+This repository contains the source code, data pipeline scripts, and documentation for our group project: **NYC Housing Complaints analysis & Prediction using Big Data**.
 
 ## 📌 Project Overview
 
@@ -14,12 +14,12 @@ With rapid urbanization in New York City, housing-related complaints (e.g., heat
 ## 👨‍💻 Team Members (Group 4)
 
 - Team Leader: Chetan Swaroop Sapedi  
-- Members: Prateek Kulshrestha,Vedika Mule, Rushikesh Pabalkar, Sonu Lad, Abhishek Singh, Anannya Sarkar, Shakyadita Sonawane
+- Members: Vedika Mule, Rushikesh Pabalkar, Sonu Lad, Abhishek Singh, Anannya Sarkar, Shakyadita Sonawane, Prateek Kulshrestha
 
 ## 🧠 Problem Statement
 
 Unstructured and large-scale housing data makes it difficult to evaluate complaint-prone zones and livability conditions. We aim to:
-- Predict future housing complaints using ML
+- Analyze important KPI's
 - Generate an Affordable Living Index
 - Provide interactive dashboards for all stakeholders
 
@@ -39,7 +39,6 @@ Unstructured and large-scale housing data makes it difficult to evaluate complai
 | Cloud | AWS S3, EMR |
 | Data Processing | PySpark, Pandas |
 | ETL | AWS EMR, hadoop, hdfs, pyspark  |
-| ML Models | PySpark MLlib, Scikit-learn |
 | Visualization | Power BI |
 | Storage | S3 (Data Lake), Redshift (MySQL Warehouse) |
 
@@ -47,10 +46,9 @@ Unstructured and large-scale housing data makes it difficult to evaluate complai
 
 1. 📥 Ingest Data from NYC Open Data into S3  
 2. 🔁 Transform data using AWS emr & hadoop  
-3. ⚙️ Process Large Data with Spark on EMR  
-4. 🧠 Train ML Models to predict complaints   
-6. 📊 Visualize in Power BI dashboards  
-7. 🔄 Automate using AWS Lambda triggers
+3. ⚙️ Process Large Data with Spark on EMR     
+4. 📊 Visualize in Power BI dashboards  
+5. 🔄 Automate using AWS Lambda triggers
 
 ## ✅ Objectives
 
@@ -67,7 +65,6 @@ Unstructured and large-scale housing data makes it difficult to evaluate complai
 
 ## 🚀 Expected Deliverables
 
-- ML model for complaint prediction
 - Cloud data warehouse
 - Visual dashboards
 - End-to-end automated ETL pipeline
